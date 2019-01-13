@@ -66,38 +66,35 @@ def load_data (path_part):
 def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r = 0.001, gpu_cpu = 'gpu'):
      '''
     input: architecture ('vgg16' or 'densenet121'), dropout (float), fc2 (int), learn_r (float), gpu_cpu ('gpu' or 'cpu')
-    output: model, critieria and optimizer
-    '''
-    if architecture == 'vgg16':
-        model = models.vgg16(pretrained=True)
-    elif architecture == 'densenet121':
-        model = models.densenet121(pretrained=True)
-    else:
-        print('please choose either vgg16 or densenet121')
+    output: model, critieria and optimizer'''
+        if architecture == 'vgg16':
+            model = models.vgg16(pretrained=True)
+        elif architecture == 'densenet121':
+            model = models.densenet121(pretrained=True)
+        else:
+            print('please choose either vgg16 or densenet121')
+            
+        # define a new, untrained feed-forward network as a classifier, using ReLU activations and dropout
         
-    # define a new, untrained feed-forward network as a classifier, using ReLU activations and dropout
-    
-    for param in model.parameters():
-        param.requires_grad = False
-        
-        num_inputs = model.classifier[0].in_features
-        
-        classifier = nn.Sequential(OrderedDict([('fc1', nn.Linear(num_inputs, fc2)),
-                                                ('relu1', nn.ReLU()),
-                                                ('dropout1', nn.Dropout(p=dropout)),
-                                                ('fc2', nn.Linear(fc2, 512)),
-                                                ('relu2', nn.ReLU()),
-                                                ('fc3', nn.Linear(512, 100)),
-                                                ('relu3', nn.ReLU()),
-                                                ('fc4', nn.Linear(100, 102)),
-                                                ('output', nn.LogSoftmax(dim=1))]))
-        
-        model.classifier = classifier
-        if gpu_cpu == 'gpu':
-            model.to(device = 'cuda')
-        
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(model.classifier.parameters(), lr = learn_r)
+        for param in model.parameters():
+            param.requires_grad = False
+            
+            num_inputs = model.classifier[0].in_features
+            
+            classifier = nn.Sequential(OrderedDict([('fc1', nn.Linear(num_inputs, fc2)),
+                                                    ('relu1', nn.ReLU()),
+                                                    ('dropout1', nn.Dropout(p=dropout)),
+                                                    ('fc2', nn.Linear(fc2, 512)),
+                                                    ('relu2', nn.ReLU()),
+                                                    ('fc3', nn.Linear(512, 100)),
+                                                    ('relu3', nn.ReLU()),
+                                                    ('fc4', nn.Linear(100, 102)),
+                                                    ('output', nn.LogSoftmax(dim=1))]))
+            model.classifier = classifier
+            if gpu_cpu == 'gpu':
+                model.to(device = 'cuda')
+            criterion = nn.CrossEntropyLoss()
+            optimizer = optim.Adam(model.classifier.parameters(), lr = learn_r)
         
         return model, optimizer, criterion
 
