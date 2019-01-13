@@ -63,7 +63,7 @@ def load_data (path_part):
 
 # define nn architecture
 
-def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r = 0.001, gpu_cpu = gpu):
+def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r = 0.001, gpu_cpu = 'gpu'):
      '''
     input: architecture ('vgg16' or 'densenet121'), dropout (float), fc2 (int), learn_r (float), gpu_cpu ('gpu' or 'cpu')
     output: model, critieria and optimizer
@@ -185,4 +185,29 @@ def save_checkpoint(architecture = 'vgg16', dropout = 0.5, learn_r = 0.001, fc2 
 
 # load checkpoint
 
-def load_checkpoint(
+def load_checkpoint_rebuild_model(filepath='checkpoint.pth'):
+    '''
+    inputs: none
+    outputs: none
+    '''
+    checkpoint = torch.load(filepath)
+    architecture = checkpoint['structure']
+    dropout = checkpoint['dropout']
+    learn_r = checkpoint['lr']
+    fc2 = checkpoint['fc2']
+    class_to_idx = checkpoint['class_to_idx']
+    num_epochs = checkpoint['epoch']
+    output_size = checkpoint['output_size']
+    state_dict = checkpoint['state_dict']
+    optimizer_dict = checkpoint['optimizer_dict']
+    
+    model,_,_ = nn_architecture(architecture, dropout, fc2, learn_r)
+
+    model.class_to_idx = checkpoint['class_to_idx']
+    model.load_state_dict(checkpoint['state_dict'])
+    
+    print('model params loaded from checkpoint')
+
+
+
+    
