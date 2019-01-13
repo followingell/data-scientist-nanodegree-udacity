@@ -65,7 +65,7 @@ def load_data (path_part):
 
 def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r = 0.001, gpu_cpu = gpu):
      '''
-    input: architecture ('vgg16' or 'densenet121'), dropout (float), fc2 (int), learn_r (float), gpu_cpu (gpu or cpu)
+    input: architecture ('vgg16' or 'densenet121'), dropout (float), fc2 (int), learn_r (float), gpu_cpu ('gpu' or 'cpu')
     output: model, critieria and optimizer
     '''
     if architecture == 'vgg16':
@@ -93,8 +93,70 @@ def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r =
                                                 ('output', nn.LogSoftmax(dim=1))]))
         
         model.classifier = classifier
-        model.to(device = 'cuda') # 'cpu'
+        if gpu_cpu == 'gpu':
+            model.to(device = 'cuda')
+        
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.classifier.parameters(), lr = learn_r)
         
         return model, optimizer, criterion
+
+# train the neural network
+
+def train_network(model, criterion, optimizer, epoch_number = 11, progress_update = 20, gpu_cpu = 'gpu'):
+    '''
+    input: model, criterion, optimizer, epoch_number (int), progress_update (int), gpu_cpu ('gpu' or 'cpu') 
+    output:
+    '''
+    # train the classifier layers using backpropagation using the pre-trained network to get the features
+    # track the loss and accuracy on the validation set to determine the best hyperparameters
+
+    epoch_num = epoch_number
+    steps = 0
+    check_progress_every = progress_update
+    
+    for e in range(epoch_num):
+        train_loss = 0
+        for ii, (inputs, labels) in enumerate(trainloader):
+            steps += 1
+             if torch.cuda.is_available() and gpu_cpu == 'gpu':
+                inputs, labels = inputs.to('cuda'), labels.to('cuda')
+            
+            optimizer.zero_grad()
+            
+            # forward and backward
+            outputs = model.forward(inputs)
+            train_loss = criterion(outputs, labels)
+            train_loss.backward()
+            optimizer.step()
+            
+            train_loss += train_loss.item()
+            
+            # show the model evaluation every ten steps
+            
+            if steps % check_progress_every == 0:
+                model.eval()
+                validation_loss = 0
+                validation_accuracy = 0
+                
+                for ii, (inputs2,labels2) in enumerate(validationloader):
+                    optimizer.zero_grad()
+                    if torch.cuda.is_available() and gpu_cpu == 'gpu':
+                        inputs2, labels2 = inputs2.to('cuda:0') , labels2.to('cuda:0')
+                        model.to('cuda:0')
+                    with torch.no_grad():
+                        outputs = model.forward(inputs2)
+                        validation_loss = criterion(outputs,labels2)
+                        ps = torch.exp(outputs).data
+                        equality = (labels2.data == ps.max(1)[1])
+                        validation_accuracy += equality.type_as(torch.FloatTensor()).mean()
+                        
+                validation_loss = validation_loss / len(validationloader)
+                validation_accuracy = validation_accuracy / len(validationloader)
+                
+                print("Epoch: {}/{} ".format(e+1, epoch_num),
+                      "Train Loss: {:.4f}".format(train_loss/check_progress_every),
+                      "Validation Loss {:.4f}".format(validation_loss),
+                      "Validation Accuracy: {:.2f}".format(validation_accuracy))
+                
+                train_loss = 0
