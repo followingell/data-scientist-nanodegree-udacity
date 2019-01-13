@@ -103,10 +103,10 @@ def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r =
 
 # train the neural network
 
-def train_network(model, criterion, optimizer, epoch_number = 11, progress_update = 20, gpu_cpu = 'gpu'):
+def train_network(model, criterion, optimizer, epoch_number = 8, progress_update = 20, gpu_cpu = 'gpu'):
     '''
     input: model, criterion, optimizer, epoch_number (int), progress_update (int), gpu_cpu ('gpu' or 'cpu') 
-    output:
+    output: none
     '''
     # train the classifier layers using backpropagation using the pre-trained network to get the features
     # track the loss and accuracy on the validation set to determine the best hyperparameters
@@ -160,3 +160,29 @@ def train_network(model, criterion, optimizer, epoch_number = 11, progress_updat
                       "Validation Accuracy: {:.2f}".format(validation_accuracy))
                 
                 train_loss = 0
+                
+# save the checkpoint 
+def save_checkpoint(architecture = 'vgg16', dropout = 0.5, learn_r = 0.001, fc2 = 1000, epoch_num = 8, filepath = 'checkpoint.pth'):
+    '''
+    input: epoch_num (int)
+    output: none
+    '''
+    model.class_to_idx = train_data.class_to_idx
+    model.epochs = epoch_num
+    
+    model_checkpoint = {'structure': architecture,
+                        'dropout':dropout,
+                        'lr':learn_r,
+                        'fc2':fc2,
+                        'class_to_idx': model.class_to_idx,
+                        'epoch': model.epochs,
+                        'output_size': 102,
+                        'state_dict': model.state_dict(),
+                        'optimizer_dict': optimizer.state_dict()}
+    
+    torch.save(model_checkpoint, 'checkpoint.pth')
+    print ('model saved')
+
+# load checkpoint
+
+def load_checkpoint(
