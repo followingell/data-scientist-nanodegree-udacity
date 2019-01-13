@@ -207,7 +207,20 @@ def load_checkpoint_rebuild_model(filepath='checkpoint.pth'):
     model.load_state_dict(checkpoint['state_dict'])
     
     print('model params loaded from checkpoint')
-
-
-
     
+def process_image(image):
+    ''' 
+    input: filepath
+    output: numpy array
+    '''
+    # process a PIL image for use in a PyTorch model
+    img = Image.open(image)
+    transformations = transforms.Compose([transforms.Resize(256),
+                                          transforms.CenterCrop(224),
+                                          transforms.ToTensor(),
+                                          transforms.Normalize([0.485, 0.456, 0.406],
+                                                               [0.229, 0.224, 0.225])])
+                                          
+    processed_img = transformations(img)
+    
+    return(processed_img)
