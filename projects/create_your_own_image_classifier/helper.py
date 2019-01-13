@@ -18,13 +18,13 @@ arch = {"vgg16":25088,
 
 # load & transform data for models
 
-def load_data (path_part):        
+def load_data(path_part):        
     '''
     function to load data, transform it for feeding into models
     input: part_path
     output: returns train, validation and test data 
     '''    
-    data_dir = path
+    data_dir = path_part
     train_dir = data_dir + '/train'
     valid_dir = data_dir + '/valid'
     test_dir = data_dir + '/test'
@@ -101,7 +101,7 @@ def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r =
 
 # train the neural network
 
-def train_network(model, criterion, optimizer, epoch_number = 8, progress_update = 20, gpu_cpu = 'gpu'):
+def train_network(model, criterion, optimizer, loader, validationloader, epoch_number = 5, progress_update = 20, gpu_cpu = 'gpu'):
     '''
     input: model, criterion, optimizer, epoch_number (int), progress_update (int), gpu_cpu ('gpu' or 'cpu') 
     output: none
@@ -115,7 +115,7 @@ def train_network(model, criterion, optimizer, epoch_number = 8, progress_update
     
     for e in range(epoch_num):
         train_loss = 0
-        for ii, (inputs, labels) in enumerate(trainloader):
+        for ii, (inputs, labels) in enumerate(loader):
             steps += 1
             if torch.cuda.is_available() and gpu_cpu == 'gpu':
                 inputs, labels = inputs.to('cuda'), labels.to('cuda')
@@ -160,7 +160,7 @@ def train_network(model, criterion, optimizer, epoch_number = 8, progress_update
                 train_loss = 0
                 
 # save the checkpoint 
-def save_checkpoint(architecture = 'vgg16', dropout = 0.5, learn_r = 0.001, fc2 = 1000, epoch_num = 8, filepath = 'checkpoint.pth'):
+def save_checkpoint(architecture = 'vgg16', dropout = 0.5, learn_r = 0.001, fc2 = 1000, epoch_num = 5, filepath = 'checkpoint.pth'):
     '''
     input: epoch_num (int)
     output: none
