@@ -224,3 +224,24 @@ def process_image(image):
     processed_img = transformations(img)
     
     return(processed_img)
+
+# predict image
+def predict(image_path, model, topk = 5, gpu_cpu = 'gpu'):
+    ''' 
+    input: filepath to image
+    output: top predicted classes for referenced image
+    '''
+    # Implement the code to predict the class from an image file
+    if torch.cuda.is_available() and gpu_cpu == 'gpu':
+        model.to('cuda:0')
+    
+    img = process_image(image_path)
+    img = img.unsqueeze(0)
+    img = img.float()
+    
+    if gpu_cpu == 'gpu':
+        with torch.no_grad():
+            output = model.forward(img.cuda())
+        
+        probability = F.softmax(output.data, dim = 1)
+        return probability.topk(topk)
