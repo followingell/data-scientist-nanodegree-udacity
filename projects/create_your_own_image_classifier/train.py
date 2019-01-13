@@ -4,7 +4,7 @@ import helper as hp
 parser = argparse.ArgumentParser(description = 'train.py')
 
 parser.add_argument('data_dir', nargs = '*', action = "store", default = "./flowers/", help = "folder path for data")
-parser.add_argument('--gpu_cpu', dest= "gpu_cpu", action = "store", default = "gpu", help = "enable gpu computation")
+parser.add_argument('--gpu_cpu', dest = "gpu_cpu", action = "store", default = "gpu", help = "enable gpu computation")
 parser.add_argument('--save_dir', dest = "save_dir", action = "store", default = "./checkpoint.pth", help = "filepath for saving checkpoint")
 parser.add_argument('--learn_r', dest = "learn_r", action = "store", default = 0.001, help = "learning rate for the optimizer")
 parser.add_argument('--dropout', dest = "dropout", action = "store", default = 0.5, help = "dropout value")

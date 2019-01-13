@@ -69,9 +69,9 @@ def nn_architecture(architecture = 'vgg16', dropout = 0.5, fc2 = 1000, learn_r =
     output: model, critieria and optimizer
     '''
     if architecture == 'vgg16':
-        model = models.vgg16(pretrained=True)
+        model = models.vgg16(pretrained = True)
     elif architecture == 'densenet121':
-        model = models.densenet121(pretrained=True)
+        model = models.densenet121(pretrained = True)
     else:
         print('please choose either vgg16 or densenet121')
             
